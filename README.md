@@ -29,3 +29,4 @@ attempt:
 * Add further data sources (see above)
 * Improve record linkage for non-exact matches, e.g. with https://recordlinkage.readthedocs.io/
 * Systematically enrich biographical information and family relations
+![Family Relations](https://raw.githubusercontent.com/mmz-potsdam/scattered-lives/master/media/allweiss_leo-aufbau.png)
