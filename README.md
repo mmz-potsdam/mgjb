@@ -1,5 +1,7 @@
 # Entity Linking among Address and Genealogical Databases
 
+Pad: https://mensuel.framapad.org/p/o20skg9kot-9wi7?lang=en
+
 Address Books (https://digital.zlb.de/viewer/cms/142/),
 Biographical (https://www.mappingthelives.org/),
 and Genealogical Databases (https://wiki.genealogy.net/Familiendatenbank_Juden_im_Deutschen_Reich)
