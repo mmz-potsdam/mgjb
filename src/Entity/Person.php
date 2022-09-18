@@ -416,7 +416,7 @@ class Person
      *
      * @return $this
      */
-    public function setBirthPlace(Place $birthPlace = null)
+    public function setBirthPlace(/* Place */ $birthPlace = null)
     {
         $this->birthPlace = $birthPlace;
 
@@ -495,7 +495,7 @@ class Person
      *
      * @return $this
      */
-    public function setDeathPlace(Place $deathPlace = null)
+    public function setDeathPlace(/* Place */ $deathPlace = null)
     {
         $this->deathPlace = $deathPlace;
 

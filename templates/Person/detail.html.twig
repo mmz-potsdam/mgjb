@@ -31,7 +31,7 @@
     <div class="col-sm-8 col-lg-9">
         <div class="container-fluid p-0">
             {% if person.disambiguatingDescription is not empty %}
-                <p>{{ person.disambiguatingDescription }}</p>
+                <p>{{ person.disambiguatingDescription|nl2br }}</p>
             {% endif %}
             <dl class="row">
             {% if person.gender is not empty %}
