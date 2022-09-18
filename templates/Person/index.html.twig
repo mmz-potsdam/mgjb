@@ -29,7 +29,7 @@
             {% else %}
                 <br />
             {% endif %}
-            <a href="{{ path('person', { 'id': row.identifier }) }}">{{ row.fullName }}</a>
+            {% set icon = row.dataProviderIcon %}{% if icon is not empty %}<i class="fa-sharp fa-solid fa-{{ icon }}"></i> {% endif %} <a href="{{ path('person', { 'id': row.identifier }) }}">{{ row.fullName }}</a>
             {% if row.birthDate is not empty or row.deathDate is not empty %}
             ({% if row.birthDate is not empty %}{{ row.birthDate }}{% endif %}-{% if row.deathDate is not empty %}{{ row.deathDate }}{% endif %})
             {% endif %}

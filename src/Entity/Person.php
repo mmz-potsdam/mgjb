@@ -19,6 +19,16 @@ class Person
         'M' => 'male',
     ];
 
+    protected static $iconMap = [
+        'JABGB' => 'location-pin',
+        'JCB' => 'book-skull',
+        'QGJ' => 'box-archive',
+        'MBNR' => 'newspaper',
+        'SSWD' => 'square',
+        'Buber' => 'envelope-open-text',
+        'DBIO' => 'book',
+    ];
+
     /**
      * @var int
      *
@@ -686,6 +696,23 @@ class Person
             'gnd' => $this->getGnd(),
             'slug' => $this->slug,
         ];
+    }
+
+    public function getDataProviderIcon(): string
+    {
+        if (empty($this->identifier)) {
+            return '';
+        }
+
+        $parts = explode('.', $this->identifier);
+
+        $key = $parts[0];
+
+        if (array_key_exists($key, self::$iconMap)) {
+            return self::$iconMap[$key];
+        }
+
+        return '';
     }
 
     public function jsonLdSerialize($locale, $omitContext = false)
