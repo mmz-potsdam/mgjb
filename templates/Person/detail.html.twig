@@ -1,0 +1,113 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Shared/helper.html.twig' as helper %}
+{% import 'Shared/map-leaflet.html.twig' as map %}
+
+{% block head %}
+    {{ map.head() }}
+
+    <!-- https://verbundwiki.gbv.de/display/VZG/SeeAlso -->
+    <script src="{{ app.request.basepath }}/js/seealso.js"></script>
+    <script>
+        var service = new SeeAlsoCollection();
+        service.services = {
+            'pndaks' : new SeeAlsoService('https://beacon.findbuch.de/seealso/pnd-aks/-lemo@ap/-dome')
+        };
+        service.views = {
+            'seealso-ul' : new SeeAlsoUL({
+                linkTarget: '_blank',
+                maxItems: 100
+            })
+        };
+        service.replaceTagsOnLoad();
+    </script>
+{% endblock %}
+
+{% block body %}
+    {{ helper.breadcrumb([ { label: 'Look-up' }, { route: app.request.attributes.get('_route'), label: 'Persons'} ]) }}
+
+    <h1>{{ person.fullname(true) }}</h1>
+
+    <div class="col-sm-8 col-lg-9">
+        <div class="container-fluid p-0">
+            {% if person.disambiguatingDescription is not empty %}
+                <p>{{ person.disambiguatingDescription }}</p>
+            {% endif %}
+            <dl class="row">
+            {% if person.gender is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Gender'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.genderLabel|trans }}</dd>
+            {% endif %}
+            {% if person.honorificPrefix is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Academic Title'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.honorificPrefix }}</dd>
+            {% endif %}
+            {% if person.alternateName is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Alternate Name(s)'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.alternateName|nl2br }}</dd>
+            {% endif %}
+            {% if person.hasOccupation is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Occupation'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.hasOccupation }}</dd>
+            {% endif %}
+            {% set birthPlace = person.birthPlaceInfo(app.request.locale) %}
+            {% if birthPlace is not empty or person.birthDate is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Born'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">
+                    {{ person.birthDate -}}
+                    {% if birthPlace is not empty %}{% if person.birthDate is not empty %}{{- ',' }}{% endif %}
+                        {% if false and birthPlace.id is defined and birthPlace.id is not empty %}
+                            <a href="{% if birthPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : birthPlace.tgn }) }}{% else %}{{ path('place', { 'id' : birthPlace.id }) }}{% endif %}">
+                            {{ birthPlace['name'] }}
+                            </a>
+                        {% else %}
+                            {{ birthPlace['name'] }}
+                        {% endif %}
+                    {% endif %}
+                </dd>
+            {% endif %}
+            {% set deathPlace = person.deathPlaceInfo(app.request.locale) %}
+            {% if deathPlace is not empty or person.deathDate is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Died'|trans }}:</dt>
+                <dd class="col-sm-8 col-md-9">
+                    {{ person.deathDate -}}
+                    {% if deathPlace is not empty %}{% if person.deathDate is not empty %}{{- ',' }}{% endif %}
+                        {% if false and deathPlace.id is defined and deathPlace.id is not empty %}
+                            <a href="{% if deathPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : deathPlace.tgn }) }}{% else %}{{ path('place', { 'id' : deathPlace.id }) }}{% endif %}">
+                            {{ deathPlace['name'] }}
+                            </a>
+                        {% else %}
+                            {{ deathPlace['name'] }}
+                        {% endif %}
+                    {% endif %}
+                </dd>
+            {% endif %}
+            {#% if person.description is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'Description'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.description|nl2br }}</dd>
+            {% endif %#}
+            {% if person.url is not empty %}
+                <dt class="col-sm-4 col-md-3">{{ 'URL'|trans }}</dt>
+                <dd class="col-sm-8 col-md-9">{{ person.url| converturls  }}</dd>
+            {% endif %}
+            </dl>
+        </div>
+        {#{ dump(person) }#}
+    </div>
+
+    <div class="col-sm-4 col-lg-3">
+        {% if person.gnd is not empty %}
+            <h3>{{ 'Integrated Authority File'|trans }}
+                <a href="https://d-nb.info/gnd/{{ person.gnd }}" target="_blank">{{ person.gnd }}</a>
+            </h3>
+            <div title="{{ person.gnd }}" class="pndaks seealso-ul"></div>
+        {% endif %}
+
+        {% if person.wikidata is not empty %}
+            <h3>{{ 'Wikidata'|trans }}
+                <small class="text-muted"><a href="https://www.wikidata.org/wiki/{{ person.wikidata }}" target="_blank">{{ person.wikidata }}</a></small>
+            </h3>
+        {% endif %}
+
+    </div>
+{% endblock %}

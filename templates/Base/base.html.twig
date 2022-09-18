@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.getLocale() }}">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        {% block stylesheets %}
+        <!-- https://fontawesome.com/download -->
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/fontawesome-free-6.1.1-web/css/all.min.css">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/bootstrap-5.2.0-dist/css/bootstrap.min.css">
+
+        {#
+            triggers scssphp, this one doesn't prepend app.request.basepath
+            since it overrides \Symfony\Bridge\Twig\Extension\AssetExtension
+            and doesn't prepend $this->getBasePath().ltrim($versionedPath, '/')
+            as in Symfony\Component\Asset\PathPackage
+        #}
+        <link href="{{ app.request.basepath }}{{ asset('css/base.css') }}" rel="stylesheet">
+        {% endblock %}
+
+        <title>{% block title %}{{ site_name|trans({}, 'additional') }}{% endblock %}</title>
+
+        {# slim-version of jquery doesn't work for tetranz/select2entity-bundle #}
+        <script src="{{ app.request.basepath }}/js/jquery-3.6.0.min.js"></script>
+        {% block head %}{% endblock %}
+    </head>
+    <body class="d-flex flex-column min-vh-100">
+        {% block navbar %}
+        <nav class="navbar navbar-expand-md navbar-light p-0">
+            <div class="container-fluid">
+                <a class="navbar-brand p-2" href="{{ path('home') }}">
+                    {{ site_name|trans({}, 'additional') }}
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="{{ 'Toggle navigation'|trans }}">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse flex-grow-1 text-right" id="navbarToggler">
+                    <ul id="menu-main" class="navbar-nav nav-fill w-100 ms-auto flex-nowrap">
+                        <li class="nav-item">
+                            {#<a class="nav-link" href="{{ path('site-map') }}">{{ 'Sites'|trans }}</a>#}
+                        </li>
+                        {#
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" id="dropdownLookupMenuButton" data-bs-toggle="dropdown">
+                                {{ 'Look-up'|trans }}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownLookupMenuButton">
+                                <a class="dropdown-item" href="{{ path('person-index') }}">{{ 'Persons'|trans }}</a>
+                                <a class="dropdown-item" href="{{ path('organization-index') }}">{{ 'Organizations'|trans }}</a>
+                                <a class="dropdown-item" href="{{ path('glossary-index') }}">{{ 'Glossary'|trans }}</a>
+                                <a class="dropdown-item" href="{{ path('bibliography-index') }}">{{ 'Literature'|trans }}</a>
+
+                            </div>
+                        </li>
+                        #}
+                        <li class="nav-item dropdown">
+                            <a href="{{ path('about') }}" class="nav-link dropdown-toggle" id="dropdownAboutMenuButton" data-bs-toggle="dropdown">
+                                {{ 'About'|trans }}
+                            </a>
+                        </li>
+                    </ul>
+                    {% if false and locales|length > 1 and app.request.attributes.get("_route") is not null %}
+                    <ul id="locale-switch" class="navbar-nav ms-auto flex-nowrap">
+                        {% for locale in locales %}
+                        <li class="nav-item{% if locale == app.request.locale %} active{% endif %}">
+                            {% if route_params_locale_switch is defined and route_params_locale_switch is not empty and route_params_locale_switch[locale] is defined %}
+                                {% set route_params = route_params_locale_switch[locale] %}
+                            {% else %}
+                                {% set route_params = app.request.attributes.get('_route_params')|merge(app.request.query.all) %}
+                            {% endif %}
+                            <a class="nav-link" href="{{ path(app.request.attributes.get('_route'), route_params|merge({"_locale": locale})) }}">{{ locale|upper }}</a>
+                        </li>
+                        {% endfor %}
+                    {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        {% endblock %}
+
+        <main role="main">
+            {% block banner %}{% endblock %}
+            <div class="container-fluid">
+                <div class="row p-2">
+                {% block body %}{% endblock %}
+                </div><!-- .row -->
+            </div><!-- .container -->
+        </main>
+
+        {#% block footer %}
+        <footer class="mt-auto">
+            <div class="container-fluid">
+                <div class="row p-2">
+                    <div class="col-sm-3">
+                        <a href="mailto:info@hachschara-als-erinnerungsort.de">{{ 'Contact'|trans }}</a>
+                    </div>
+                    <div class="col-sm-9 text-sm-end">
+                        <a href="{{ path('imprint') }}#data-protection" style="margin-right: 1rem">{{ 'Privacy'|trans }}</a>
+                        <a href="{{ path('imprint') }}#imprint">{{ 'Imprint'|trans }}</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        {% endblock %#}
+
+        {% block javascripts %}
+        <!-- jQuery first, already in head, then Bootstrap JS Bundle which includes Popper -->
+        <script src="{{ app.request.basepath }}/vendor/bootstrap-5.2.0-dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        </script>
+        {% endblock %}
+    </body>
+</html>

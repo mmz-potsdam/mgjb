@@ -1,0 +1,114 @@
+{% macro head() %}
+    <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/leaflet-1.7.1/leaflet.css" />
+    <script src="{{ app.request.basepath }}/vendor/leaflet-1.7.1/leaflet.js"></script>
+{% endmacro %}
+
+{% macro head_markercluster() %}
+    <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/leaflet.markercluster-1.4.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/leaflet.markercluster-1.4.1/MarkerCluster.Default.css" />
+    <script src="{{ app.request.basepath }}/vendor/leaflet.markercluster-1.4.1/leaflet.markercluster.js"></script>
+    <script>
+        function escapeHtml(text) {
+            return $('<div/>').text(text).html();
+        }
+    </script>
+{% endmacro %}
+
+{% macro head_heatmap() %}
+    <script src="{{ app.request.basepath }}/vendor/leaflet-heat/leaflet-heat.js"></script>
+{% endmacro %}
+
+{% macro addTileLayer(maxZoom) %}
+    if (true) {
+        // for styles, see https://www.mapbox.com/api-documentation/#styles
+        L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/{style}/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaGF1c3ZlcnN0YW5kIiwiYSI6ImNpemU2OWJvaTAwNHIyd252b2ptaDV2NjkifQ.FGA8-opghZHquZJKlHSFdg', {
+            maxZoom: {{ maxZoom|default(18) }},
+            attribution: 'Map data &copy; <a href="https://openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://mapbox.com/">Mapbox</a>',
+            style: 'outdoors-v9',
+        }).addTo(map);
+    }
+    else {
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: {{ maxZoom|default(18) }},
+            attribution: 'Map data &copy; <a href="https://openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+            id: 'mapbox.streets'
+        }).addTo(map);
+    }
+{% endmacro %}
+
+{% macro showMap(bounds) %}
+    {% import _self as map %}
+    var map = null;
+    function showMap() {
+        map = L.map('map', { zoomControl: false });
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+
+        {% if bounds is empty %}
+        map.setView([20, 0], 2);
+        {% elseif bounds[0] is iterable %}
+        map.fitBounds([
+            [ {{ bounds[0]|join(', ') }} ],
+            [ {{ bounds[1]|join(', ') }} ]
+        ], { padding: [3, 3] });
+        {% else %}
+        map.setView([ {{ bounds|join(', ') }}], 8);
+        {% endif %}
+
+        {{ map.addTileLayer() }}
+    }
+{% endmacro %}
+
+
+{% macro defineColorIcons() %}
+    var baseUrlMarkerImg = '{{ app.request.basepath }}/vendor/leaflet-color-markers/img/';
+
+    var blueIcon = new L.Icon({
+        iconUrl: baseUrlMarkerImg + 'marker-icon-2x-blue.png',
+        shadowUrl: baseUrlMarkerImg + 'marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    var violetIcon = new L.Icon({
+        iconUrl: baseUrlMarkerImg + 'marker-icon-2x-violet.png',
+        shadowUrl: baseUrlMarkerImg + 'marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    var blackIcon = new L.Icon({
+        iconUrl: baseUrlMarkerImg + 'marker-icon-2x-black.png',
+        shadowUrl: baseUrlMarkerImg + 'marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    var yellowIcon = new L.Icon({
+        iconUrl: baseUrlMarkerImg + 'marker-icon-2x-yellow.png',
+        shadowUrl: baseUrlMarkerImg + 'marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    var orangeIcon = new L.Icon({
+        iconUrl: baseUrlMarkerImg + 'marker-icon-2x-orange.png',
+        shadowUrl: baseUrlMarkerImg + 'marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+{% endmacro %}

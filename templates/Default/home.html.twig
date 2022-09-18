@@ -1,0 +1,26 @@
+{% extends 'Base/base.html.twig' %}
+
+{% block banner %}
+    <div id="banner" class="bg-light p-2 p-sm-4 rounded-lg">
+        <h1 class="display-3">{{ 'Welcome'|trans }}</h1>
+        <p>MGJB is a prototype developed within the DH Jewish Hackathon
+        <p>
+            <a class="btn btn-primary" href="{{ path('about') }}" role="button">{{ 'Read-on'|trans }} &raquo;</a>
+        </p>
+    </div>
+{% endblock %}
+
+{% block body %}
+    <div class="col-sm-4 text-sm-center">
+        <h2>{{ 'Look-up'|trans }}</h2>
+        <p style="line-height: 2.5rem">
+            <a class="btn btn-secondary" href="{{ path('person-index') }}" role="button">{{ 'Persons'|trans }} &raquo;</a>
+        </p>
+    </div>
+    <div class="col-sm-4 text-sm-center">
+        <h2>{{ 'About'|trans }}</h2>
+        <p style="line-height: 2.5rem">
+            <a class="btn btn-secondary" href="{{ path('about') }}" role="button">{{ 'The Project'|trans }} &raquo;</a>
+        </p>
+    </div>
+{% endblock %}

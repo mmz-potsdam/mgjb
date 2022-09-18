@@ -1,0 +1,175 @@
+$color-color-spot: #0F256E;
+$color-color-link: #0038b8;
+$color-body-text: #212529; // currently same as default in reboot
+
+$color-gray-light: #F4F4F4;
+$color-gray-dark: #616161;
+
+/*
+ * Roboto
+ */
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i&display=swap&subset=latin-ext');
+
+$font-stack-sans: 'Roboto', Arial, "Arial Unicode MS", sans-serif;
+$font-stack-sans-combining: Arial, "Arial Unicode MS", sans-serif;
+
+/* == $grid-breakpoints
+ * see https://github.com/twbs/bootstrap/blob/master/scss/_variables.scss
+ */
+$screen-sm-min: 576px;
+$screen-md-min: 768px;
+$screen-lg-min: 992px;
+$screen-xl-min: 1200px;
+
+// So media queries don't overlap when required, provide a maximum
+$screen-xs-max:              ($screen-sm-min - 1) !default;
+$screen-sm-max:              ($screen-md-min - 1) !default;
+$screen-md-max:              ($screen-lg-min - 1) !default;
+$screen-lg-max:              ($screen-xl-min - 1) !default;
+
+@media print {
+    /* http://drupal.stackexchange.com/a/59908*/
+    a[href]:after {
+        content: none;
+    }
+
+    img {
+        max-height: 360;
+    }
+
+    nav .breadcrumb {
+        display: none;
+    }
+}
+
+main {
+    margin-bottom: 4rem;
+}
+
+/* general styles */
+body {
+    font-family: $font-stack-sans;
+
+    a, a:hover {
+        color: $color-color-link;
+    }
+}
+
+body > nav {
+    border-bottom: 2px solid $color-gray-dark;
+
+    .navbar-brand {
+        padding-right: 20px !important;
+        border-right: 2px solid $color-gray-dark;
+    }
+
+    .nav-fill {
+        .nav-item {
+            @media (max-width: $screen-sm-max) {
+                /* override center for big-max menu */
+                text-align: left;
+                padding-left: 20px;
+            }
+        }
+    }
+
+    .nav-item {
+        line-height: 30px; /* same as navbar-brand */
+        &.active a {
+            font-weight: bold;
+        }
+    }
+
+    #menu-main {
+        li {
+            font-size: 1.25rem; /* same as .navbar-brand */
+        }
+    }
+
+    #locale-switch {
+        border-left: 2px solid $color-gray-dark;
+        padding-left: 20px !important;
+    }
+}
+
+main {
+    h1 {
+        position: relative;
+        width: 100%;
+        margin-top: 30px !important;
+    }
+
+    nav[aria-label="breadcrumb"] {
+        margin-top: 10px;
+
+        & + h1  {
+            margin-top: 0px !important;
+        }
+    }
+
+    h3 {
+        a {
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    h2.initial {
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
+
+    h4 {
+        font-size: calc(1.0rem + .3vw);
+
+        margin-top: 1rem;
+        &:first-child {
+                margin-top: 0px;
+        }
+
+        margin-bottom: 0.25rem;
+    }
+
+    ol {
+        list-style: decimal inside;
+    }
+
+    ul.bullet-inside {
+        list-style: inside;
+    }
+}
+
+footer {
+    & > div {
+        border-top: 2px solid $color-gray-dark;
+        margin-top: 1rem;
+    }
+
+    a {
+        color: $color-gray-dark;
+        text-decoration: none;
+    }
+}
+
+#banner {
+    border-bottom: 1px solid $color-gray-dark;
+    margin-bottom: 30px;
+}
+
+/* override bootstrap settings */
+.bg-light {
+    background-color: $color-gray-light !important;
+}
+
+.btn-primary, .btn-primary:hover {
+    color: #fff;
+    background-color: $color-color-link;
+    border-color: $color-color-link;
+}
+
+/* other styles */
+.select2-search__field {
+    min-width: 360px;
+}

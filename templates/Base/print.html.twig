@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.getLocale() }}">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        {% block stylesheets %}
+        <!-- https://fontawesome.com/download -->
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/fontawesome-free-6.1.1-web/css/all.min.css">
+
+        {#
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/bootstrap-5.2.0-dist/css/bootstrap.min.css">
+        #}
+
+        {#
+            triggers scssphp, this one doesn't prepend app.request.basepath
+            since it overrides \Symfony\Bridge\Twig\Extension\AssetExtension
+            and doesn't prepend $this->getBasePath().ltrim($versionedPath, '/')
+            as in Symfony\Component\Asset\PathPackage
+        #}
+        <link href="{{ app.request.basepath }}{{ asset('css/base.css') }}" rel="stylesheet">
+        {% endblock %}
+
+        <title>{% block title %}{{ site_name|trans({}, 'additional') }}{% endblock %}</title>
+
+        {# slim-version of jquery doesn't work for tetranz/select2entity-bundle #}
+        <script src="{{ app.request.basepath }}/js/jquery-3.6.0.min.js"></script>
+        {% block head %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block navbar %}
+        {% endblock %}
+
+        <main role="main">
+            {% block banner %}{% endblock %}
+            {% block body %}{% endblock %}
+        </main>
+
+        {% block footer %}
+        {% endblock %}
+
+        {% block javascripts %}
+        <!-- jQuery first, already in head, then Bootstrap JS Bundle which includes Popper -->
+        <script src="{{ app.request.basepath }}/vendor/bootstrap-5.2.0-dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        </script>
+        {% endblock %}
+    </body>
+</html>

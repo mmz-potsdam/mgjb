@@ -1,0 +1,277 @@
+{% macro breadcrumb(path, prepend_home = false) %}
+    <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        {% if prepend_home %}
+        <li class="breadcrumb-item"><a href="{{ path('home') }}">{{ 'Home'|trans }}</a></li>
+        {% endif %}
+        {% for entry in path %}
+        <li class="breadcrumb-item{% if loop.last %} active{% endif %}">
+            {% if entry.route is defined and entry.route is not empty %}
+                <a href="{{ path(entry.route) }}">{{ entry.label|trans }}</a>
+            {% else %}
+                {{ entry.label|trans }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+    </nav>
+{% endmacro %}
+
+{% macro pagination_count(pagination) %}
+    {# total items count #}
+    <div class="count">
+        {% set first = (pagination.getCurrentPageNumber - 1) * pagination.getItemNumberPerPage %}
+        {% set total = pagination.getTotalItemCount %}
+        {% set last = min(first + pagination.getItemNumberPerPage, total) %}
+        {{ first + 1 }} - {{ last }} of  {{ total }}
+    </div>
+{% endmacro %}
+
+{% macro pagination_sortable(pagination, title, key, defaultDirection = 'asc') %}
+    {% set sortDirection = defaultDirection %}
+    {% if app.request.get('sort') == key and app.request.get('direction') == defaultDirection %}
+        {% if defaultDirection == 'desc' %}
+            {% set sortDirection = 'asc' %}
+        {% else %}
+            {% set sortDirection = 'desc' %}
+        {% endif %}
+    {% endif %}
+    {{ knp_pagination_sortable(pagination, title, key, {}, { 'direction': sortDirection }) }}
+{% endmacro %}
+
+{% macro build_media_url(app, media) %}{{ app.request.basepath }}/admin/uploads/{{ media.imgUrl }}{% endmacro %}
+
+{% macro person_list_item(person) %}
+    <a href="{% if person.ulan is not empty %}{{ path('person-by-ulan', { 'ulan' : person.ulan }) }}{% elseif person.gnd is not empty %}{{ path('person-by-gnd', { 'gnd' : person.gnd }) }}{% else %}{{ path('person', { 'id' : person.id }) }}{% endif %}">
+        <b>{{ person.fullname }}</b>
+    </a>
+
+    {% set birthPlace = person.birthPlaceInfo(app.request.locale) %}
+    {% set deathPlace = person.deathPlaceInfo(app.request.locale) %}
+    {% if birthPlace is not empty or person.birthDate is not empty
+       or deathPlace is not empty or person.deathDate is not empty %}
+        ({% if birthPlace is not empty or person.birthDate is not empty %}
+                {{ person.birthDate -}}
+                {% if birthPlace is not empty %}{% if person.birthDate is not empty %}{{- ',' }}{% endif %}
+                    {% if birthPlace.id is not empty %}
+                        <a href="{% if birthPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : birthPlace.tgn }) }}{% else %}{{ path('place', { 'id' : birthPlace.id }) }}{% endif %}">
+                        {{ birthPlace['name'] }}
+                        </a>
+                    {% else %}
+                        {{ birthPlace['name'] }}
+                    {% endif %}
+                {% endif %}
+        {% endif %}
+        {% if deathPlace is not empty or person.deathDate is not empty %}
+            &ndash;
+                {{ person.deathDate -}}
+                {% if deathPlace is not empty %}{% if person.deathDate is not empty %}{{- ',' }}{% endif %}
+                    {% if deathPlace.id is not empty %}
+                        <a href="{% if deathPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : deathPlace.tgn }) }}{% else %}{{ path('place', { 'id' : deathPlace.id }) }}{% endif %}">
+                        {{ deathPlace['name'] }}
+                        </a>
+                    {% else %}
+                        {{ deathPlace['name'] }}
+                    {% endif %}
+                {% endif %}
+        {% endif %})
+    {% endif %}
+{% endmacro %}
+
+{% macro site_list_item(site) %}
+    <a href="{{ path('site', { 'id' : site.id }) }}">
+        <b>{{ site.name }}</b>
+    </a>
+{% endmacro %}
+
+{% macro place_linked(place) -%}
+    <a href="{% if place.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : place.tgn }) }}{% else %}{{ path('place', { 'id' : place.id }) }}{% endif %}">{{ place.nameLocalized(app.request.locale) }}</a>
+{%- endmacro %}
+
+{% macro person_linked(person, givenNameFirst) -%}
+    <a href="{% if person.ulan is not empty %}{{ path('person-by-ulan', { 'ulan' : person.ulan }) }}{% elseif person.gnd is not empty %}{{ path('person-by-gnd', { 'gnd' : person.gnd }) }}{% else %}{{ path('person', { 'id' : person.id }) }}{% endif %}">{{ person.fullname(givenNameFirst|default(false)) }}</a>
+{%- endmacro %}
+
+{% macro person_linked_anchor(person) -%}
+    <a href="#person-{{ person.id }}">{{ person.fullname }}</a>
+{%- endmacro %}
+
+{% macro seealso_head_gnd() %}
+    <script src="{{ app.request.basepath }}/js/seealso.js"></script>
+    <script>
+        var service = new SeeAlsoCollection();
+        service.services = {
+            'gndaks' : new SeeAlsoService('https://beacon.findbuch.de/seemore/gnd-aks/-dewp@wd')
+        };
+        service.views = {
+            'seealso-ul' : new SeeAlsoUL({
+                linkTarget: '_blank',
+                maxItems: 100
+            })
+        };
+        service.replaceTagsOnLoad();
+    </script>
+{% endmacro %}
+
+{% macro render_info(entries) -%}
+    {% for entry in entries %}
+        {% if entry.note is defined and entry.note is not empty %}
+            {{ entry.note|nl2br }}
+            {% if (entry.citation is defined and entry.citation is not empty) or (entry.url is defined and entry.url is not empty) %}(
+                {% if entry.citation is defined and entry.citation is not empty %}{{- entry.citation|raw }}{% endif %}
+                {% if entry.url is defined and entry.url is not empty %}{{- entry.url|converturls }}{% endif %}
+            ){% endif %}
+        {% else %}
+            {% if entry.citation is defined and entry.citation is not empty %}{{ entry.citation|raw }}{% endif %}
+            {% if entry.url is defined and entry.url is not empty %}{{ entry.url|converturls }}{% endif %}
+        {% endif %}
+        {% if not loop.last %}<br />{% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro checkmark_actions(entity) %}
+    // checkmark worker
+    var active = Cookies.getJSON('{{ entity }}');
+    if (!(active instanceof Array)) {
+        active = [];
+    }
+    for (var i = 0; i < active.length; i++) {
+        $('span.checkmark[data-id="' + active[i] + '"]').addClass('checked');
+    }
+
+    $('.checkbox-filter-button').on('click', function() {
+        if (active.length !== 0 ) {
+            {% if 'Venue' == entity %}{% set selector = 'location' %}{% else %}{% set selector = entity|lower %}{% endif %}
+            var select2selector = '#filter_{{ selector }}_{{ selector }}';
+            // remove anything active
+            $(select2selector).val(null).trigger('change');
+            for (var i = 0; i < active.length; i++) {
+                // add new
+                var $newOption = $("<option selected='selected'></option>").val(active[i]).text(active[i]);
+                $(select2selector).append($newOption).trigger('change');
+            }
+
+            // submit form
+            $('.indexForm').submit();
+        }
+    });
+
+    $('.checkmark').on('click', function() {
+        var currId = $(this).data('id');
+        if (-1 == currId) {
+            if (active.length > 0) {
+                // deselect all
+                $('.checkmark.checked').removeClass('checked');
+                active = [];
+            }
+            else {
+                // select all
+                $('.checkmark').each(function (idx) {
+                    var dataId = $(this).data('id');
+                    if (-1 != dataId) {
+                        $(this).addClass('checked');
+                        active.push(dataId);
+                    }
+                });
+            }
+        }
+        else {
+            var index = active.indexOf(currId);
+            if ($(this).hasClass('checked')) {
+                // remove
+                if (index > -1) {
+                    active.splice(index, 1);
+                }
+            }
+            else {
+                // add
+                if (index == -1) {
+                    active.push(currId);
+                }
+            }
+
+            $(this).toggleClass('checked');
+        }
+
+
+        Cookies.set('{{ entity }}', active);
+    });
+{% endmacro %}
+
+{% macro render_active_filters(listBuilder, form, entityLabels) %}
+            {# render active filters #}
+            <div class="additional-filter-container">
+                {% for entity,filters in listBuilder.queryFilters %}
+                    <div class="filter-row"><div class="div-block-5">{{ entityLabels[entity] }}</div></div>
+                    {% for key,val in filters %}
+                        {% set fieldVars = form[entity][key].vars %}
+                        {% set fieldVal = fieldVars.value %}
+                        {% set label = fieldVars.label %}
+                        {% if label is empty %}{% set label = key|humanize %}{% endif %}
+                        {% set relation = 'equal to' %}
+                        {% if fieldVal is iterable and fieldVal|length > 1 %}
+                            {% set relation = 'one of' %}
+                        {% endif %}
+
+                        {% set displayVal = fieldVal %}
+                        {% if fieldVars.choices is not empty %}
+                            {% if fieldVal is not iterable %}
+                                {% set fieldVal = [ fieldVal ] %}
+                            {% endif %}
+                            {% set choiceLabels = []  %}
+                            {% for choiceVal in fieldVal %}
+                                {% set choiceLabel = choiceVal %}
+                                {% set break = false %}
+                                {% for choice in fieldVars.choices %}
+                                    {% if not break and choice.value == choiceVal %}
+                                        {% set choiceLabel = choice.label %}
+                                        {% set break = true %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set choiceLabels = choiceLabels|merge([ choiceLabel ]) %}
+                            {% endfor %}
+                            {% set displayVal = choiceLabels|join(', ') %}
+                        {% elseif fieldVal is iterable %}
+                            {% if form[entity][key].children|length > 0 %}
+                                {% set relation = 'within the range' %}
+                                {% set displayVal = fieldVal|join('-') %}
+                            {% else %}
+                                {% set displayVal = fieldVal|join('; ') %}
+                            {% endif %}
+                        {% else %}
+                            {{ fieldVal }}
+                        {% endif %}
+
+                        <div class="filter-row">
+                            <div class="div-block-5">
+                                <div class="first-filter-term">
+                                    <div>{{ label }}</div>
+                                </div>
+                                <div class="is_equal_to">
+                                    <div>
+                                        is {{ relation }}
+                                    </div>
+                                </div>
+                                <div class="first-filter-term">
+                                    <div>
+                                        {{ displayVal }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="subfilter-buttons-container">
+                                {% set filtersRemaining = listBuilder.queryFilters(true)|without(entity) %}
+                                {% set filtersEntityRemaining = filters|without(key) %}
+                                {% if filtersEntityRemaining is not empty %}
+                                    {% set filtersRemaining = filtersRemaining|merge({ (entity) : filtersEntityRemaining }) %}
+                                {% endif %}
+                                {% set params = app.request.attributes.get('_route_params')|merge(app.request.query.all|without('filter')) %}
+                                {% if filtersRemaining is not empty %}
+                                    {% set params = params|merge({ 'filter': filtersRemaining }) %}
+                                {% endif %}
+                                <a class="subfilter-remove" href="{{ path(app.request.attributes.get('_route'), params) }}">remove</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div><!-- .additional-filter-container -->
+{% endmacro %}

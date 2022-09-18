@@ -1,0 +1,45 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Shared/helper.html.twig' as helper %}
+
+{% block body %}
+    <h1>{{ 'Persons'|trans }}</h1>
+    <div class="col">
+    {#
+    <form method="get" action="{{ path(app.request.attributes.get('_route')) }}">
+        <div class="form-group">
+            {{ form_rest(form) }}
+            <!--<button type="submit" class="btn btn-primary">{{ 'Search'|trans }}</button>-->
+        </div>
+    </form>
+    #}
+
+    {% if pagination.getTotalItemCount > 0 %}
+        {% if pagination.page > 1 %}
+        {# display navigation #}
+        {{ knp_pagination_render(pagination) }}
+        {% endif %}
+
+        {% set last_initial = '' %}
+        {% for row in pagination %}
+            {% set initial = row.familyName|slug|first|upper %}
+            {% if initial != last_initial %}
+                <h2 class="initial">{{ initial }}</h2>
+                {% set last_initial = initial %}
+            {% else %}
+                <br />
+            {% endif %}
+            <a href="{{ path('person', { 'id': row.identifier }) }}">{{ row.fullName }}</a>
+            {% if row.birthDate is not empty or row.deathDate is not empty %}
+            ({% if row.birthDate is not empty %}{{ row.birthDate }}{% endif %}-{% if row.deathDate is not empty %}{{ row.deathDate }}{% endif %})
+            {% endif %}
+            <span class="text-muted">{{ row.disambiguatingDescription }}</span>
+        {% endfor %}
+
+        {# display navigation #}
+        {{ knp_pagination_render(pagination) }}
+    {% else %}
+        {{ 'No matching persons found'|trans }}
+    {% endif %}
+    </div>
+{% endblock %}
